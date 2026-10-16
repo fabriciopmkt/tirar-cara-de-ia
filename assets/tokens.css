@@ -1,0 +1,91 @@
+/* Tokens de partida (de um CRM white-label pra clínicas, 27/09/2026). Copie, troque o matiz dos neutros e da marca, e ligue no
+   Tailwind como cores `oklch(var(--x-lch) / <alpha-value>)` (ou use direto em CSS).
+   Neutros em tripla "L C H" pra aceitar alpha. Tema escuro troca o VALOR das variáveis em html.dark.
+   Marca por cliente (white-label): o servidor escreve --marca-h, --marca-c e --marca-l0 no <html>. */
+:root {
+  /* Marca: padrão = verde do produto. */
+  --marca-h: 163.2;
+  --marca-c: 0.127;
+  --marca-l0: 0.596;
+  --marca-l: var(--marca-l0);
+  --sobre-marca-l: 0.99;
+
+  /* Neutros com matiz frio (250). Fundo um tom abaixo da caixa: é o contraste sem borda grossa. */
+  --fundo-lch: 0.950 0.009 250;
+  --superficie-1-lch: 1 0 0;            /* caixa */
+  --superficie-2-lch: 0.975 0.005 250;  /* cabeçalho de tabela, hover leve */
+  --superficie-3-lch: 0.930 0.010 250;  /* pressionado, coluna de kanban, trilho */
+  --linha-lch: 0.900 0.012 250;
+  --linha-forte-lch: 0.845 0.016 250;
+  --texto-1-lch: 0.21 0.03 262;
+  --texto-2-lch: 0.42 0.03 258;         /* ~6:1 no branco */
+  --texto-3-lch: 0.50 0.03 257;
+
+  /* Estados: matiz fixo, luminosidade e croma iguais pros quatro. */
+  --ok-h: 150; --aviso-h: 70; --erro-h: 25; --info-h: 237;
+  --estado-l: 0.62;        --estado-c: 0.16;   /* ponto, ícone */
+  --estado-fundo-l: 0.96;  --estado-fundo-c: 0.04;
+  --estado-texto-l: 0.42;  --estado-texto-c: 0.12;
+  --estado-linha-l: 0.88;  --estado-linha-c: 0.07;
+
+  /* Categoria (etapa, tag, canal): o ELEMENTO define --etapa-h; a luminosidade é a mesma pra todo matiz. */
+  --etapa-h: 257;
+  --etapa-c: 0.03;   /* cinza; categorias com cor usam 0.14 */
+
+  /* Menu escuro no matiz da marca. */
+  --sidebar-fundo-lch: 0.28 0.06 var(--marca-h);
+  --sidebar-texto-lch: 0.93 0.01 var(--marca-h);
+  --sidebar-mudo-lch: 0.72 0.03 var(--marca-h);
+  --sidebar-ativo-lch: 0.36 0.08 var(--marca-h);
+  --sidebar-linha-lch: 0.34 0.05 var(--marca-h);
+  --sidebar-acento-lch: 0.773 0.153 var(--marca-h);
+
+  /* Forma. */
+  --raio: 6px;       /* controle: botão, campo, chip */
+  --raio-2: 12px;    /* caixa: card, coluna, gaveta */
+  --sombra-caixa: 0 1px 2px oklch(0.25 0.03 255 / 0.07), 0 1px 3px oklch(0.25 0.03 255 / 0.05);
+  --sombra-flutuante: 0 10px 30px -8px oklch(0.2 0.03 255 / 0.18), 0 2px 6px oklch(0.2 0.03 255 / 0.08);
+}
+
+@media screen {
+  html.dark {
+    --marca-l: calc(var(--marca-l0) + 0.10);
+    --fundo-lch: 0.191 0 0;
+    --superficie-1-lch: 0.244 0 0;
+    --superficie-2-lch: 0.285 0 0;
+    --superficie-3-lch: 0.301 0 0;
+    --linha-lch: 0.341 0 0;
+    --linha-forte-lch: 0.409 0 0;
+    --texto-1-lch: 0.967 0.001 0;
+    --texto-2-lch: 0.814 0 0;
+    --texto-3-lch: 0.693 0 0;
+    --estado-fundo-l: 0.28;  --estado-fundo-c: 0.05;
+    --estado-texto-l: 0.82;  --estado-texto-c: 0.10;
+    --estado-linha-l: 0.38;  --estado-linha-c: 0.07;
+    --sombra-caixa: none;    /* no escuro a superfície mais clara separa a caixa */
+    --sombra-flutuante: 0 12px 32px -8px oklch(0 0 0 / 0.6);
+  }
+}
+
+body { background-color: oklch(var(--fundo-lch)); color: oklch(var(--texto-1-lch)); }
+*, ::before, ::after { border-color: oklch(var(--linha-lch)); }
+
+/* Navegador sem oklch (raro): fundo fixo, sem cor por cliente. */
+@supports not (color: oklch(0 0 0)) {
+  body { background-color: #eceff3; color: #1b2230; }
+  html.dark body { background-color: #141414; color: #e6e6e6; }
+}
+
+/* Ligação no Tailwind (tailwind.config), pra usar bg-fundo, text-texto-2, bg-erro-fundo...:
+   const lch = (v) => `oklch(var(--${v}-lch) / <alpha-value>)`;
+   const estado = (h) => ({ DEFAULT: `oklch(var(--estado-l) var(--estado-c) var(--${h}-h))`,
+     fundo: `oklch(var(--estado-fundo-l) var(--estado-fundo-c) var(--${h}-h))`,
+     texto: `oklch(var(--estado-texto-l) var(--estado-texto-c) var(--${h}-h))`,
+     linha: `oklch(var(--estado-linha-l) var(--estado-linha-c) var(--${h}-h))` });
+   colors: { marca: 'oklch(var(--marca-l) var(--marca-c) var(--marca-h))', fundo: lch('fundo'),
+     superficie: { 1: lch('superficie-1'), 2: lch('superficie-2'), 3: lch('superficie-3') },
+     linha: { DEFAULT: lch('linha'), forte: lch('linha-forte') }, texto: { 1: lch('texto-1'), 2: lch('texto-2'), 3: lch('texto-3') },
+     ok: estado('ok'), aviso: estado('aviso'), erro: estado('erro'), info: estado('info') }
+   borderRadius: { controle: 'var(--raio)', caixa: 'var(--raio-2)' },
+   boxShadow: { caixa: 'var(--sombra-caixa)', flutuante: 'var(--sombra-flutuante)' },
+   darkMode: 'class' */
